@@ -61,7 +61,7 @@ Markdown 不是“阅读替代品”，而是“知识结构层”。
 
 ```
 design-sharing/
-└── material design 3_zhangxiaoming_2026.01.30/
+└── Google Material Design 3 设计分享_zhangxiaoming_2026.01.30/
     ├── README.md        （结构沉淀）
     ├── slides.pdf       （展示版）
     └── asset/          （源文件下载链接）
