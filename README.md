@@ -67,7 +67,7 @@ design-sharing/
     ├── slides.pdf       （展示版）
     └── assets
 ```
-注释：assets 文件中放置 上传在七牛云kodo-design asset 文件夹中 源文件链接
+说明：assets 文件中放置 上传在七牛云kodo-design asset 文件夹中 源文件链接
 
 ---
 
