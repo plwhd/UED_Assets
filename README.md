@@ -64,9 +64,10 @@ design-sharing/
 └── material design 3_zhangxiaoming_2026.01.30/
     ├── README.md        （结构沉淀）
     ├── slides.pdf       （展示版）
-    └── assets
+    └── assets/          （源文件下载链接）
+        ├── ppt/         （PPT / Keynote 源文件链接）
+        └── other/       （其他素材或源文件链接，如 Sketch、Figma）
 ```
-说明：assets 文件中放置 上传在七牛云kodo-design asset 文件夹中 源文件链接
 
 ---
 
