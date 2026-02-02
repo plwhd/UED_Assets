@@ -68,8 +68,7 @@ design-sharing/
         ├── ppt/         （PPT / Keynote 源文件链接）
         └── other/       （其他素材或源文件链接，如 Sketch、Figma）
 ```
-说明：
-- 源文件需上传到 七牛云kodo design-asset 文件夹，并将链接保存到 GitHub asset 文件中。 
+补充：
 - 文件命名格式：如上。
 
 ---
@@ -95,5 +94,5 @@ design-sharing/
 
 - 第二：在github 中创建文件夹，上传PDF 文件，maekdown 文件，新建 asset 文件（如上）。
 
-- 同时注意命名的规范，统一。
+- 注意命名的规范，统一。
 
