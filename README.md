@@ -94,5 +94,5 @@ design-sharing/
 
 - 第二：在github 中创建文件夹，上传PDF 文件，maekdown 文件，新建 asset 文件（如上）。
 
-- 注意命名的规范，统一。
+- 注意命名的规范，统一，以上。
 
