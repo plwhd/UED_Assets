@@ -42,9 +42,9 @@
 
 ---
 
-## 三、关于 PPT / PDF 与 Markdown 的关系
+## 三、关于 PDF 与 Markdown 的关系
 
-我们需要把 PPT 或 PDF 完整转成 Markdown。
+我们需要先将 PPT/Keynote 转成 slides.pdf，再把 slides.pdf 完整转成 Markdown。
 
 原则是：
 
@@ -61,10 +61,11 @@ Markdown 不是“阅读替代品”，而是“知识结构层”。
 
 ```
 design-sharing/
-└── Google Material Design 3 设计分享_zhangxiaoming_2026.01.30/
-    ├── README.md        （结构沉淀）
+└── material design 3_zhangxiaoming_2026.01.30/
+    ├── README.md        （由 slides.pdf 转写的结构化 Markdown）
     ├── slides.pdf       （展示版）
-    └── asset.md         （存放 PPT / Keynote / Figma 源文件下载链接）
+    └── asset.md         （资源链接占位）
+
 ```
 补充：
 - 文件命名格式：如上。
@@ -86,11 +87,11 @@ design-sharing/
 
 ## 六：你需要如何做
 
-- 首先：你需要有 PPT/keynote 等源文件、便于展示的PDF 文件、markdown 格式的文件。
+- 首先：准备便于展示的 `slides.pdf`（可由 PPT/Keynote 导出）。
 
 - 第一：将PPT/keynote 源文件上传到 七牛云 kodo（rmb-web@qiniu.com.密码获取：UED Team ）design-asset 文件夹中，并保存链接。
 
-- 第二：在github 中创建文件夹，上传PDF 文件，maekdown 文件，新建 asset 文件（如上）。
+- 第二：在 github 中创建文件夹，上传 `slides.pdf`，并由 `slides.pdf` 转写生成 `README.md`。
 
 - 注意命名的规范，统一，以上。
 
