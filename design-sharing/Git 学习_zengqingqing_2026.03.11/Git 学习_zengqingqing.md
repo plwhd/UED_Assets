@@ -1,7 +1,7 @@
 # Git 学习
 > 教程来源：廖雪峰的 Git 教程 https://www.liaoxuefeng.com/wiki/
 > 分享人：zengqingqing
-> 日期：2026-02-25
+> 日期：2026-03-11
 
 ## 核心问题
 - Git 是什么？
@@ -193,6 +193,261 @@ nothing to commit, working tree clean
 
 ```git log```命令显示从最近到最远的提交日志，我们可以看到3次提交，最近的一次是 append GPL，上一次是 add distributed，最早的一次是 wrote a readme 
 
-> 未完待续...
+##  未完待续...
 
+
+## 工作场景
+### 场景一 提交文件夹到 git
+我在 ~/workspace/h 内有两个文件夹 a b 的数据 我需要提交到 git
+
+#### 第一步：确认当前目录是仓库，先进入 h:
+``` 
+cd ~/workspace/h
+``` 
+确认一下：
+``` 
+ls -a
+``` 
+必须看到
+``` 
+.git
+``` 
+#### 第二步：查看当前状态
+
+``` 
+git status
+``` 
+如果 a 和 b 还没被 Git 管理，会看到：
+``` 
+Untracked files:
+  a/
+  b/
+``` 
+#### 第三步：添加到暂存区
+如果要一次性提交全部内容：
+``` 
+git add .
+``` 
+如果只想提交 a 和 b：
+``` 
+git add a b
+``` 
+#### 第四步：确认已进入暂存区
+
+```
+git status 
+``` 
+应该看到：
+
+``` 
+Changes to be committed:
+  new file: a/xxx
+  new file: b/xxx
+``` 
+
+#### 第五步：提交
+```
+git commit -m "add folders a and b"
+``` 
+
+#### 推到 GitHub
+先确认是否有远程仓库：
+```
+git remote -v
+``` 
+如果已经连接了远程：
+```
+git push origin main
+``` 
+
+### 场景二 Review pr
+#### 第一步：切分支
+首先切换到跟踪分支：upstream/ui（即 goplus/builder/ui）
+
+#### 第二步：拉取 pr 内容
+git fetch upstream pull/2890/head:pr_2890
+2890（指的是pr编号）
+pr_2890（用于review的分支名，新建的分支与 pr 号绑定，方便识别）
+
+#### 第三步：切换到新建的分支
+git checkout pr_2890
+
+### 场景三 将 Review 数据保存在本地，进行修改，然后同步到远端
+在 pr_2890 的基础上进行修改，并同步到 upstream pull/2890
+
+#### 第一步：保存到本地仓库
+git add .
+git commit -m"您的提交信息描述"
+
+```
+工作区 (Working Directory)
+    ↓ git add .
+暂存区 (Staging Area) 
+    ↓ git commit
+本地仓库 (Local Repository) ← 📌 数据在这里
+    ↓ git push
+远程仓库 (Remote Repository)   ← GitHub/GitLab 等
+
+```
+#### 第二步：推送到远程仓库
+由于您有一个 fork 仓库。配置：
+origin: 您的 fork (qingqing-ux/builder)
+upstream: 原始仓库 (goplus/builder)
+
+方案一：通过 origin 创建 PR 到 upstream
+这是最常见的工作流程：
+
+#### 1. 推送到您的 fork
+git push origin pr_2890
+
+#### 2. 然后在 GitHub 上创建 Pull Request
+从 qingqing-ux/builder:pr_2929 
+到   goplus/builder:dev
+
+### 场景四 在电脑初始化 git 仓库
+#### 在电脑中
+建立文件夹
+第一步：cd /Users/zengqingqing/workspace/
+第二步：新建文件夹 <文件夹名称>
+
+
+#### 在终端中
+在指定目录建立文件夹
+
+#### 先进入目录，再创建
+cd  /Users/zengqingqing/workspace/
+
+- 创建一个文件夹
+  mkdir  test    
+  > mk = make（创建）
+  dir = directory（目录 / 文件夹）
+
+- 创建一个 .md 文件
+  touch test.md
+
+- 创建并直接写入内容
+  echo "# 标题" > test.md
+  > echo 👉 输出内容
+  > ">" 👉 重定向到文件
+    test.md 👉 文件名
+
+- 打印当前工作目录
+  pwd
+  
+#### 查看是否创建成功
+进入项目目录
+cd /Users/zengqingqing/workspace/<文件夹名称>
+ls
+
+#### 初始化仓库
+git init
+
+成功后 git status 会看到
+一个 .git 目录
+
+#### 在 Finder 中显示 .git
+Command + Shift + .
+
+
+### 场景五 通过展示 .git 内文件变化，理解数据结构
+进入工作区
+初始化 git 仓库
+建立 a.md 文件 → 观察 hash 变化
+建立 文件夹 b 包含 a.md  件 → 观察 refs(当前引用的commit） 变化 → 观察 HEAD(当前分支）变化
+试试更改 hash 可以替换内容
+查看文件 git cat-file -p 
+git 有三种不同的存储类型，commit、tree、blob，
+git commit 会带上 tree、父commit、author
+
+### 场景六 了解远程协作
+在 qingqing-ux 账号下 fork 一个 builder 仓库 下的 ui 分支
+git remote -v 查看远程仓库地址
+会有两个概念 
+origin  git@github.com:qingqing-ux/builder.git (your fork)
+upstream        https://github.com/goplus/builder.git (the original repository)
+
+#### 同步 upstream 的 ui 分支
+
+1. 切换到 ui 分支
+git checkout ui
+
+2. 从 upstream 拉取最新更改
+git fetch upstream
+
+3. 将 upstream/ui 合并到本地 ui 分支
+git merge upstream/ui
+
+> git merge upstream/dev     # 合并 upstream 的 dev 分支,到当前分支
+> git merge origin/dev       # 合并 origin 的 dev 分支,到当前分支
+> git merge dev              # 合并本地的 dev 分支,到当前分支
+
+
+4. 推送到你的 origin 仓库
+git push origin ui
+
+#### 将数据从 origin 同步到 upstream
+方法 1：使用 GitHub CLI
+
+1. 确保你的分支已推送到 origin
+git push origin paper-test
+> paper-test 是你当前所在的 git 分支名称
+
+2. 创建 PR 到 upstream
+gh pr create --repo goplus/builder --base ui --head qingqing-ux:paper-test
+> gh pr create - 创建 Pull Request
+> --repo goplus/builder - 指定 PR 要合并到哪个仓库,这里是 upstream 仓库（原始仓库）
+> --base ui - 指定目标分支（PR 要合并到哪个分支）
+> --head qingqing-ux:paper-test - 指定源分支（从哪个分支发起 PR）,paper-test 是你的功能分支
+
+
+## git 常用命令
+ git add .
+ git commit -m'xxxxx'
+ git status
+ 
+ git fetch 下载远程更新
+ git push 下载 + 合并
+ git pull 上传到远程
+ 
+#### Git 是一个内容寻址数据库
+在 git 的时候，所有的文件都是独立，靠引用，commit tree blob 存在
+Git 是一个内容寻址数据库，靠哈希值组织一套对象系统
+
+#### .git 内文件夹
+###### cat .git/HEAD
+ > 当前指针
+``` 
+ref: refs/heads/main
+```
+指的是：正在 main 分支上工作
+
+###### cat .git/objects
+> 存有所有数据内容，三种核心对象类型 包含 blob、tree、commit
+
+执行
+``` 
+touch a.txt
+git add .
+git commit -m "first"
+``` 
+Git 会
+1. 创建 blob（a.txt 的内容）
+2. 创建 tree（当前目录结构）
+3. 创建 commit（记录作者 + 时间 + 指向 tree）
+4. 存入 .git/objects
+
+###### cat .git/refs
+存有分支和标签
+各个分支指向哪个 commit
+``` 
+ .git/refs/heads/main
+ 
+``` 
+
+#### Git 有三个区域
+工作区（Working Directory）
+        ↓ git add
+暂存区（Staging Area）
+        ↓ git commit
+版本库（Repository）
 
