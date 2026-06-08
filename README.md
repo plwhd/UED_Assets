@@ -1,4 +1,4 @@
-# 设计团队分享资产管理规范（试行）_2026.01.30
+# 设计团队分享资产管理规范（试行）_2026.06.08
 
 ## 一、目标
 
@@ -13,13 +13,14 @@
 
 ## 二、基本原则
 
-一次完整的设计分享，应包含两类内容，并统一上传至 GitHub 设计团队仓库：
+一次完整的设计分享，应包含两类能力，并统一上传至 GitHub 设计团队仓库：
 
 ### 1️⃣ 展示层（Presentation Layer）
 
-用于现场表达与阅读体验：
+用于现场表达、阅读和托管：
 
-* PDF 导出版本
+* 首选：`index.html`
+* 兜底：`slides.pdf`
 
 👉 作用：保证视觉表达与阅读体验
 👉 目标：对人友好
@@ -28,7 +29,7 @@
 
 ### 2️⃣ 结构层（Structured Layer）
 
-使用 Markdown 编写：
+用于保留分享的知识结构：
 
 * 分享背景
 * 核心观点
@@ -37,38 +38,58 @@
 * 可复用结论
 * 行动建议
 
+结构层可以由 `index.html` 内的结构化正文承担；如果只有 PPT/PDF，则需要额外生成 `README.md`。
+
 👉 作用：保证结构化沉淀
 👉 目标：对系统 / AI 友好
 
 ---
 
-## 三、关于 PDF 与 Markdown 的关系
+## 三、关于 HTML、PDF 与 Markdown 的关系
 
-我们需要先将 PPT/Keynote 转成 slides.pdf，再把 slides.pdf 完整转成 Markdown。
+如果分享已经产出完整的 `index.html`，并且 HTML 中包含可阅读、可检索、可维护的结构化内容，则 `index.html` 可以同时承担展示层和结构层，不再强制要求先导出 `slides.pdf` 再转写 `README.md`。
+
+如果分享只有 PPT/Keynote 或 PDF，则仍按兜底流程处理：先导出 `slides.pdf`，再把 `slides.pdf` 转写为结构化 `README.md`。
 
 原则是：
 
-* PPT = 表达形式
-* Markdown = 思考结构
+* `index.html` = 可展示、可阅读、可托管的首选交付
+* `slides.pdf` = 传统展示兜底
+* `README.md` = 当 HTML 不具备结构化内容时的知识结构层
+* `asset.md` = 外部资源链接占位，只在有源文件、七牛链接或补充资源时需要
 
-Markdown 不是“阅读替代品”，而是“知识结构层”。
+结构要求不等于文件数量要求。只要产物能被阅读、检索、版本追踪和复用，就不必人为拆成多份文件。
 
 ---
 
 ## 四、仓库结构建议
 
-每次分享建立独立文件夹，例如：
+每次分享建立独立文件夹。优先使用 HTML 交付：
 
 ```
 design-sharing/
-└── material design 3_zhangxiaoming_2026.01.30/
-    ├── README.md        （由 slides.pdf 转写的结构化 Markdown）
+└── product-design-workflow/
+    ├── index.html       （首选：可展示、可阅读、可托管）
+    ├── README.md        （可选：摘要、入口、维护说明）
+    └── asset.md         （可选：源文件、七牛链接或补充资源）
+
+```
+
+如果暂时只能产出 PPT/PDF，则使用兜底结构：
+
+```
+design-sharing/
+└── material-design-3/
     ├── slides.pdf       （展示版）
-    └── asset.md         （资源链接占位）
+    ├── README.md        （由 slides.pdf 转写的结构化 Markdown）
+    └── asset.md         （可选：源文件、七牛链接或补充资源）
 
 ```
 补充：
-- 文件命名格式：如上。
+- 文件夹命名格式默认使用 `分享主题`，中文或英文均可，但同一文件夹内保持一致。
+- 如需区分同名主题、系列内容或多人同题分享，可使用 `分享主题_日期` 或 `分享主题_作者_日期`。
+- HTML 分享入口统一命名为 `index.html`，便于本地打开和静态托管。
+- `README.md` 和 `asset.md` 不是强制文件，只在确实承担摘要、结构化转写或外部资源链接时创建。
 
 ---
 
@@ -87,11 +108,19 @@ design-sharing/
 
 ## 六：你需要如何做
 
-- 首先：准备便于展示的 `slides.pdf`（可由 PPT/Keynote 导出）。
+### 首选流程：已经有 HTML
 
-- 第一：将PPT/keynote 源文件上传到 七牛云 kodo（账号：rmb-web@qiniu.com 密码：联系zengqingqing ）design-asset 文件夹中，并保存链接。
+- 第一：在 `design-sharing/` 下创建独立文件夹，默认命名为 `分享主题`。
+- 第二：将 HTML 保存为 `index.html`。
+- 第三：检查 HTML 是否可以直接打开，正文是否可阅读，核心观点是否可检索。
+- 第四：如有源文件、七牛链接或补充资源，再创建 `asset.md` 保存链接。
+- 第五：如需要在 GitHub 文件列表中补充说明，再创建薄版 `README.md`，只写摘要和入口。
 
-- 第二：在 github 中创建文件夹，上传 `slides.pdf`，并由 `slides.pdf` 转写生成 `README.md`。
+### 兜底流程：只有 PPT/Keynote 或 PDF
 
-- 注意命名的规范，统一，以上。
+- 第一：准备便于展示的 `slides.pdf`（可由 PPT/Keynote 导出）。
+- 第二：将 PPT/Keynote 源文件上传到七牛云 Kodo（账号：rmb-web@qiniu.com，密码：联系zengqingqing）`design-asset` 文件夹中，并保存链接。
+- 第三：在 GitHub 中创建文件夹，上传 `slides.pdf`，并由 `slides.pdf` 转写生成 `README.md`。
+- 第四：如有外部资源链接，创建 `asset.md`。
 
+注意：不要为了满足旧流程重复制造文件。产物已经具备展示、阅读和结构化能力时，保留 `index.html` 即可。
