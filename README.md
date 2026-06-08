@@ -89,7 +89,7 @@ design-sharing/
 
 - 首先：准备便于展示的 `slides.pdf`（可由 PPT/Keynote 导出）。
 
-- 第一：将PPT/keynote 源文件上传到 七牛云 kodo（rmb-web@qiniu.com.密码获取：UED Team ）design-asset 文件夹中，并保存链接。
+- 第一：将PPT/keynote 源文件上传到 七牛云 kodo（账号：rmb-web@qiniu.com 密码：联系zengqingqing ）design-asset 文件夹中，并保存链接。
 
 - 第二：在 github 中创建文件夹，上传 `slides.pdf`，并由 `slides.pdf` 转写生成 `README.md`。
 
