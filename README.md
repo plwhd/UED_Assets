@@ -68,7 +68,7 @@
 
 ```
 design-sharing/
-└── product-design-workflow_zengqingqing_2026.06.08/
+└── product-design-workflow/
     ├── index.html       （首选：可展示、可阅读、可托管）
     ├── README.md        （可选：摘要、入口、维护说明）
     └── asset.md         （可选：源文件、七牛链接或补充资源）
@@ -79,14 +79,15 @@ design-sharing/
 
 ```
 design-sharing/
-└── material-design-3_zhangxiaoming_2026.01.30/
+└── material-design-3/
     ├── slides.pdf       （展示版）
     ├── README.md        （由 slides.pdf 转写的结构化 Markdown）
     └── asset.md         （可选：源文件、七牛链接或补充资源）
 
 ```
 补充：
-- 文件夹命名格式：`分享主题_姓名_日期`，中文或英文均可，但同一文件夹内保持一致。
+- 文件夹命名格式默认使用 `分享主题`，中文或英文均可，但同一文件夹内保持一致。
+- 如需区分同名主题、系列内容或多人同题分享，可使用 `分享主题_日期` 或 `分享主题_作者_日期`。
 - HTML 分享入口统一命名为 `index.html`，便于本地打开和静态托管。
 - `README.md` 和 `asset.md` 不是强制文件，只在确实承担摘要、结构化转写或外部资源链接时创建。
 
@@ -109,7 +110,7 @@ design-sharing/
 
 ### 首选流程：已经有 HTML
 
-- 第一：在 `design-sharing/` 下创建独立文件夹，命名为 `分享主题_姓名_日期`。
+- 第一：在 `design-sharing/` 下创建独立文件夹，默认命名为 `分享主题`。
 - 第二：将 HTML 保存为 `index.html`。
 - 第三：检查 HTML 是否可以直接打开，正文是否可阅读，核心观点是否可检索。
 - 第四：如有源文件、七牛链接或补充资源，再创建 `asset.md` 保存链接。
