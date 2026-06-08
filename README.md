@@ -47,9 +47,11 @@
 
 ## 三、关于 HTML、PDF 与 Markdown 的关系
 
-如果分享已经产出完整的 `index.html`，并且 HTML 中包含可阅读、可检索、可维护的结构化内容，则 `index.html` 可以同时承担展示层和结构层，不再强制要求先导出 `slides.pdf` 再转写 `README.md`。
+如果 `index.html` 已经包含完整正文，并且内容可阅读、可检索、可维护，它就可以同时承担展示层和结构层。
 
-如果分享只有 PPT/Keynote 或 PDF，则仍按兜底流程处理：先导出 `slides.pdf`，再把 `slides.pdf` 转写为结构化 `README.md`。
+这种情况下，不必再导出 `slides.pdf`，也不必再转写一份 `README.md`。
+
+如果暂时没有 HTML，先用 `slides.pdf` 作为展示兜底；只有需要结构化沉淀时，再补充 `README.md`。
 
 原则是：
 
@@ -81,7 +83,7 @@ design-sharing/
 design-sharing/
 └── material-design-3/
     ├── slides.pdf       （展示版）
-    ├── README.md        （由 slides.pdf 转写的结构化 Markdown）
+    ├── README.md        （可选：由 slides.pdf 转写的结构化 Markdown）
     └── asset.md         （可选：源文件、七牛链接或补充资源）
 
 ```
@@ -95,14 +97,7 @@ design-sharing/
 
 ## 五、长期价值
 
-这样做的意义是：
-
-* 所有分享可被全文检索
-* 所有方法模型可被复用
-* 所有观点可被版本对比
-* 未来可用于训练内部 AI 助手
-
-我们的目标不是“存文件”，而是“构建设计知识系统”。
+这样做的意义是：让分享能被检索、复用、版本对比，并逐步沉淀为设计知识系统。
 
 ---
 
@@ -112,15 +107,23 @@ design-sharing/
 
 - 第一：在 `design-sharing/` 下创建独立文件夹，默认命名为 `分享主题`。
 - 第二：将 HTML 保存为 `index.html`。
+  - 预览地址拼接规则：`Pages 根地址 + 文件在仓库里的相对路径`。
+  - 例如，`design-sharing/产品设计工程化工作流/index.html` 对应：
+    ```text
+    https://qiniu-ued.github.io/UED_Assets/design-sharing/产品设计工程化工作流/index.html
+    ```
+  - 浏览器地址栏可以直接粘贴中文路径；如需对外分享，优先使用转码后的地址：
+    ```text
+    https://qiniu-ued.github.io/UED_Assets/design-sharing/%E4%BA%A7%E5%93%81%E8%AE%BE%E8%AE%A1%E5%B7%A5%E7%A8%8B%E5%8C%96%E5%B7%A5%E4%BD%9C%E6%B5%81/index.html
+    ```
 - 第三：检查 HTML 是否可以直接打开，正文是否可阅读，核心观点是否可检索。
 - 第四：如有源文件、七牛链接或补充资源，再创建 `asset.md` 保存链接。
 - 第五：如需要在 GitHub 文件列表中补充说明，再创建薄版 `README.md`，只写摘要和入口。
 
-### 兜底流程：只有 PPT/Keynote 或 PDF
+### 兜底说明：暂时没有 HTML
 
-- 第一：准备便于展示的 `slides.pdf`（可由 PPT/Keynote 导出）。
-- 第二：将 PPT/Keynote 源文件上传到七牛云 Kodo（账号：rmb-web@qiniu.com，密码：联系zengqingqing）`design-asset` 文件夹中，并保存链接。
-- 第三：在 GitHub 中创建文件夹，上传 `slides.pdf`，并由 `slides.pdf` 转写生成 `README.md`。
-- 第四：如有外部资源链接，创建 `asset.md`。
+- 先上传 `slides.pdf`，保证内容可展示、可下载。
+- 如有 PPT/Keynote 源文件或外部链接，按内部 Kodo 上传规范保存到 `asset.md`。
+- 只有需要结构化沉淀时，再把 `slides.pdf` 转写为 `README.md`。
 
 注意：不要为了满足旧流程重复制造文件。产物已经具备展示、阅读和结构化能力时，保留 `index.html` 即可。
