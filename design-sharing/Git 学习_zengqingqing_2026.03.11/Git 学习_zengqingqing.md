@@ -196,6 +196,18 @@ nothing to commit, working tree clean
 ##  未完待续...
 
 
+## 核心场景
+### 1. 开启新任务
+git checkout next-ui -> git pull upstream next-ui -> git checkout -b feat-xxx
+### 2. 提交改动
+"git add . -> git commit -m ""..."""
+### 3. 更新 PR
+git push origin HEAD (推送到远程同名分支，系统会根据你配置的 origin 推送)
+### 4. PR 冲突/同步
+git fetch upstream -> git rebase upstream/next-ui -> git push origin HEAD -f
+### 5. 任务完成清理
+git checkout next-ui -> git reset --hard upstream/next-ui
+
 ## 工作场景
 ### 场景一 提交文件夹到 git
 我在 ~/workspace/h 内有两个文件夹 a b 的数据 我需要提交到 git
@@ -262,8 +274,8 @@ git push origin main
 
 ### 场景二 Review pr
 #### 第一步：切分支
-首先切换到跟踪分支：upstream/ui（即 goplus/builder/ui）
-
+~~首先切换到跟踪分支：upstream/ui（即 goplus/builder/ui）~~
+不需要切
 #### 第二步：拉取 pr 内容
 git fetch upstream pull/2890/head:pr_2890
 2890（指的是pr编号）
@@ -355,7 +367,7 @@ Command + Shift + .
 建立 a.md 文件 → 观察 hash 变化
 建立 文件夹 b 包含 a.md  件 → 观察 refs(当前引用的commit） 变化 → 观察 HEAD(当前分支）变化
 试试更改 hash 可以替换内容
-查看文件 git cat-file -p 
+** 查看文件 git cat-file -p **
 git 有三种不同的存储类型，commit、tree、blob，
 git commit 会带上 tree、父commit、author
 
@@ -399,8 +411,37 @@ gh pr create --repo goplus/builder --base ui --head qingqing-ux:paper-test
 > --base ui - 指定目标分支（PR 要合并到哪个分支）
 > --head qingqing-ux:paper-test - 指定源分支（从哪个分支发起 PR）,paper-test 是你的功能分支
 
+### 场景七 新建一个分支，并切换
+> Git 分支名不能包含空格，建议使用连字符连接
+git checkout -b <design-style-modification>
 
-## git 常用命令
+
+### 场景八 两个分支分别做不同的板块。
+> ui 分支 跟踪的是 origin/ui
+> HEAD -> ui, upstream/ui, origin/ui
+
+新建 sprite-ui ，他的改动需要提交到 origin/ui
+
+git switch ui
+git merge --ff-only sprite-ui
+git push origin ui
+
+### 场景九 文件防丢失
+新文件防丢失
+git add .
+git commit -m "init"
+
+
+针对已跟踪的文件，防丢失
+git commit -am "wip"
+
+
+### Git 是一个内容寻址数据库
+在 git 的时候，所有的文件都是独立，靠引用，commit tree blob 存在
+Git 是一个内容寻址数据库，靠哈希值组织一套对象系统
+
+
+#### git 常用命令
  git add .
  git commit -m'xxxxx'
  git status
@@ -408,10 +449,22 @@ gh pr create --repo goplus/builder --base ui --head qingqing-ux:paper-test
  git fetch 下载远程更新
  git push 下载 + 合并
  git pull 上传到远程
- 
-#### Git 是一个内容寻址数据库
-在 git 的时候，所有的文件都是独立，靠引用，commit tree blob 存在
-Git 是一个内容寻址数据库，靠哈希值组织一套对象系统
+
+#### Git 有三个区域
+工作区（Working Directory）
+        ↓ git add
+暂存区（Staging Area）
+        ↓ git commit
+版本库（Repository）
+
+#### Git 三种核心类型
+commit （提交记录）
+tree (目录结构）
+blob （文件内容）
+
+#### 查看 Git 对象的内容
+查看 commit 内容
+git cat-file -p <commit-hash>
 
 #### .git 内文件夹
 ###### cat .git/HEAD
@@ -443,11 +496,3 @@ Git 会
  .git/refs/heads/main
  
 ``` 
-
-#### Git 有三个区域
-工作区（Working Directory）
-        ↓ git add
-暂存区（Staging Area）
-        ↓ git commit
-版本库（Repository）
-
