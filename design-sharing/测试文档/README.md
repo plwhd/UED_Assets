@@ -2,7 +2,7 @@
 
 本分享使用 `index.html` 作为首选交付文件。
 
-- 展示入口：[https://qiniu-ued.github.io/UED_Assets/design-sharing/测试文档/index.html](./index.html)
+- 展示入口：[在线预览](https://qiniu-ued.github.io/UED_Assets/design-sharing/测试文档/index.html)
 - 交付类型：HTML 分享页
 - 分享日期：2026.06.12
 - 作者：zengqingqing
