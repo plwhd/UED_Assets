@@ -1,0 +1,1167 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>让机器人更像人的另一种可能</title>
+    <style>
+      :root {
+        --bg: #08131f;
+        --panel: rgba(7, 17, 28, 0.72);
+        --panel-strong: rgba(12, 26, 40, 0.9);
+        --text: #edf4ff;
+        --muted: #96aeca;
+        --accent: #72f0d0;
+        --accent-2: #ff9d7a;
+        --accent-3: #9bb8ff;
+        --line: rgba(255, 255, 255, 0.08);
+        --shadow: 0 28px 80px rgba(0, 0, 0, 0.35);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        min-height: 100%;
+        background:
+          radial-gradient(circle at top left, rgba(114, 240, 208, 0.15), transparent 28%),
+          radial-gradient(circle at 85% 20%, rgba(155, 184, 255, 0.2), transparent 26%),
+          radial-gradient(circle at bottom right, rgba(255, 157, 122, 0.15), transparent 24%),
+          linear-gradient(135deg, #09131d 0%, #06101b 45%, #0d1826 100%);
+        color: var(--text);
+        font-family: "Avenir Next", "PingFang SC", "Microsoft YaHei", sans-serif;
+        overflow: hidden;
+      }
+
+      body::before {
+        content: "";
+        position: fixed;
+        inset: 0;
+        background-image:
+          linear-gradient(rgba(255, 255, 255, 0.025) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(255, 255, 255, 0.025) 1px, transparent 1px);
+        background-size: 32px 32px;
+        mask-image: radial-gradient(circle at center, black 48%, transparent 92%);
+        pointer-events: none;
+      }
+
+      button {
+        font: inherit;
+      }
+
+      .deck {
+        position: relative;
+        width: 100vw;
+        height: 100vh;
+      }
+
+      .slide-shell {
+        position: absolute;
+        inset: 0;
+        padding: 28px;
+      }
+
+      .slide {
+        position: relative;
+        width: 100%;
+        height: 100%;
+        padding: 46px 54px 34px;
+        border: 1px solid var(--line);
+        border-radius: 30px;
+        background:
+          linear-gradient(160deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.015)),
+          rgba(6, 15, 24, 0.72);
+        backdrop-filter: blur(12px);
+        box-shadow: var(--shadow);
+        display: grid;
+        grid-template-rows: auto 1fr auto;
+        overflow: hidden;
+      }
+
+      .slide::before,
+      .slide::after {
+        content: "";
+        position: absolute;
+        border-radius: 999px;
+        filter: blur(12px);
+        opacity: 0.75;
+        pointer-events: none;
+      }
+
+      .slide::before {
+        width: 220px;
+        height: 220px;
+        top: -90px;
+        right: -30px;
+        background: radial-gradient(circle, rgba(114, 240, 208, 0.22), transparent 68%);
+      }
+
+      .slide::after {
+        width: 260px;
+        height: 260px;
+        bottom: -110px;
+        left: -60px;
+        background: radial-gradient(circle, rgba(155, 184, 255, 0.16), transparent 70%);
+      }
+
+      .slide-enter {
+        animation: slide-in 480ms cubic-bezier(0.2, 0.8, 0.2, 1);
+      }
+
+      @keyframes slide-in {
+        from {
+          opacity: 0;
+          transform: translateY(24px) scale(0.985);
+        }
+
+        to {
+          opacity: 1;
+          transform: translateY(0) scale(1);
+        }
+      }
+
+      .topbar {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 20px;
+      }
+
+      .eyebrow {
+        font-size: 0.85rem;
+        letter-spacing: 0.18em;
+        text-transform: uppercase;
+        color: var(--accent);
+      }
+
+      .page-tag {
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 999px;
+        padding: 10px 16px;
+        color: var(--muted);
+        font-size: 0.95rem;
+        background: rgba(255, 255, 255, 0.03);
+      }
+
+      .content {
+        position: relative;
+        z-index: 1;
+        display: grid;
+        align-content: center;
+        gap: 22px;
+        min-height: 0;
+      }
+
+      .hero {
+        display: grid;
+        grid-template-columns: 1.25fr 0.75fr;
+        gap: 28px;
+        align-items: center;
+      }
+
+      .hero-text {
+        display: grid;
+        gap: 18px;
+      }
+
+      h1,
+      h2 {
+        margin: 0;
+        line-height: 1.08;
+        letter-spacing: -0.04em;
+      }
+
+      h1 {
+        font-size: clamp(2.8rem, 5vw, 5.7rem);
+        max-width: 10ch;
+      }
+
+      h2 {
+        font-size: clamp(2.3rem, 4vw, 4.2rem);
+        max-width: 14ch;
+      }
+
+      .subtitle {
+        max-width: 70ch;
+        font-size: clamp(1rem, 1.5vw, 1.2rem);
+        line-height: 1.8;
+        color: #d6e4f7;
+      }
+
+      .meta-row,
+      .pill-row,
+      .stat-row,
+      .footer-hint {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+      }
+
+      .meta-card,
+      .pill,
+      .stat,
+      .quote,
+      .panel,
+      .list-card {
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        background: var(--panel);
+        border-radius: 22px;
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05);
+      }
+
+      .meta-card,
+      .pill,
+      .stat {
+        padding: 14px 18px;
+      }
+
+      .meta-card {
+        min-width: 180px;
+      }
+
+      .meta-label,
+      .stat-label {
+        color: var(--muted);
+        font-size: 0.88rem;
+      }
+
+      .meta-value,
+      .stat-value {
+        margin-top: 6px;
+        font-size: 1.05rem;
+      }
+
+      .visual {
+        min-height: 320px;
+        border-radius: 28px;
+        background:
+          radial-gradient(circle at 50% 28%, rgba(255, 255, 255, 0.2), transparent 18%),
+          linear-gradient(160deg, rgba(114, 240, 208, 0.08), rgba(155, 184, 255, 0.08)),
+          rgba(255, 255, 255, 0.02);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        position: relative;
+        overflow: hidden;
+      }
+
+      .face {
+        position: absolute;
+        inset: 12% 18%;
+        border-radius: 36% 36% 42% 42%;
+        background:
+          radial-gradient(circle at 50% 35%, rgba(255, 255, 255, 0.22), transparent 25%),
+          linear-gradient(180deg, rgba(199, 236, 255, 0.16), rgba(114, 240, 208, 0.07));
+        border: 1px solid rgba(255, 255, 255, 0.12);
+      }
+
+      .eye {
+        position: absolute;
+        width: 18%;
+        height: 18%;
+        top: 37%;
+        border-radius: 50%;
+        background: radial-gradient(circle at 50% 50%, #daf7ff 0 18%, #061018 19% 56%, #0c1f31 57% 100%);
+        box-shadow:
+          0 0 0 10px rgba(255, 255, 255, 0.04),
+          0 8px 30px rgba(114, 240, 208, 0.18);
+        animation: eye-drift 8s ease-in-out infinite;
+      }
+
+      .eye.left {
+        left: 24%;
+      }
+
+      .eye.right {
+        right: 24%;
+        animation-delay: 0.4s;
+      }
+
+      .mouth {
+        position: absolute;
+        left: 50%;
+        bottom: 23%;
+        width: 28%;
+        height: 14%;
+        transform: translateX(-50%);
+        border-bottom: 5px solid rgba(255, 157, 122, 0.88);
+        border-radius: 0 0 999px 999px;
+        filter: drop-shadow(0 8px 18px rgba(255, 157, 122, 0.2));
+        animation: mouth-shift 7s ease-in-out infinite;
+      }
+
+      .tear {
+        position: absolute;
+        right: 22%;
+        top: 56%;
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        background: rgba(255, 157, 122, 0.95);
+        box-shadow: 0 0 18px rgba(255, 157, 122, 0.3);
+      }
+
+      @keyframes eye-drift {
+        0%,
+        100% {
+          transform: translate(0, 0);
+        }
+
+        30% {
+          transform: translate(4px, -2px);
+        }
+
+        60% {
+          transform: translate(-5px, 3px);
+        }
+      }
+
+      @keyframes mouth-shift {
+        0%,
+        100% {
+          border-bottom-left-radius: 999px;
+          border-bottom-right-radius: 999px;
+          transform: translateX(-50%) scaleX(1);
+        }
+
+        40% {
+          transform: translateX(-50%) scaleX(0.92) translateY(-2px);
+        }
+
+        70% {
+          transform: translateX(-50%) scaleX(1.08);
+        }
+      }
+
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 18px;
+      }
+
+      .list-card,
+      .panel {
+        padding: 22px 24px;
+      }
+
+      .list-card h3,
+      .panel h3 {
+        margin: 0 0 14px;
+        font-size: 1.05rem;
+        color: #f4f8ff;
+      }
+
+      ul,
+      ol {
+        margin: 0;
+        padding-left: 1.2em;
+        display: grid;
+        gap: 12px;
+        color: #dbe9fb;
+        line-height: 1.75;
+      }
+
+      .quote {
+        padding: 22px 24px;
+        font-size: 1.05rem;
+        line-height: 1.8;
+        color: #eef5ff;
+        position: relative;
+      }
+
+      .quote::before {
+        content: "“";
+        position: absolute;
+        top: 4px;
+        left: 16px;
+        font-size: 3rem;
+        color: rgba(114, 240, 208, 0.35);
+      }
+
+      .quote span {
+        display: block;
+        padding-left: 18px;
+      }
+
+      .split {
+        display: grid;
+        grid-template-columns: 1.05fr 0.95fr;
+        gap: 22px;
+        align-items: stretch;
+      }
+
+      .timeline {
+        display: grid;
+        gap: 12px;
+      }
+
+      .timeline-item {
+        padding: 16px 18px;
+        border-radius: 20px;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        background: rgba(255, 255, 255, 0.035);
+      }
+
+      .timeline-title {
+        color: var(--accent);
+        font-size: 0.92rem;
+        margin-bottom: 6px;
+      }
+
+      .timeline-body {
+        line-height: 1.7;
+        color: #dbe7f8;
+      }
+
+      .footer {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 16px;
+      }
+
+      .progress {
+        position: relative;
+        flex: 1;
+        height: 8px;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.08);
+        overflow: hidden;
+      }
+
+      .progress-bar {
+        position: absolute;
+        inset: 0 auto 0 0;
+        width: 0;
+        background: linear-gradient(90deg, var(--accent), var(--accent-2));
+        border-radius: inherit;
+      }
+
+      .footer-hint {
+        color: var(--muted);
+        font-size: 0.92rem;
+        align-items: center;
+      }
+
+      .key {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 28px;
+        padding: 5px 8px;
+        border-radius: 8px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        background: rgba(255, 255, 255, 0.04);
+        color: #f5f9ff;
+      }
+
+      .nav-layer {
+        position: absolute;
+        inset: 0;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        z-index: 3;
+      }
+
+      .nav-hit {
+        border: 0;
+        background: transparent;
+        cursor: pointer;
+      }
+
+      .nav-hit:focus-visible {
+        outline: 2px solid rgba(114, 240, 208, 0.65);
+        outline-offset: -8px;
+      }
+
+      .controls {
+        position: absolute;
+        right: 38px;
+        bottom: 38px;
+        z-index: 4;
+        display: flex;
+        gap: 10px;
+      }
+
+      .control-btn {
+        width: 48px;
+        height: 48px;
+        border-radius: 14px;
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        background: rgba(9, 18, 30, 0.8);
+        color: #f5f8ff;
+        cursor: pointer;
+      }
+
+      .control-btn:hover {
+        background: rgba(18, 34, 52, 0.95);
+      }
+
+      .badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 10px 14px;
+        border-radius: 999px;
+        background: rgba(114, 240, 208, 0.08);
+        border: 1px solid rgba(114, 240, 208, 0.16);
+        color: #dffbf5;
+        width: fit-content;
+      }
+
+      .large-number {
+        font-size: clamp(2.4rem, 5vw, 4.8rem);
+        line-height: 1;
+        letter-spacing: -0.05em;
+      }
+
+      .closing {
+        display: grid;
+        place-items: center;
+        text-align: center;
+      }
+
+      .closing h1 {
+        max-width: none;
+      }
+
+      .closing p {
+        margin: 0;
+        font-size: 1.08rem;
+        color: var(--muted);
+        letter-spacing: 0.14em;
+      }
+
+      @media (max-width: 900px) {
+        .slide-shell {
+          padding: 14px;
+        }
+
+        .slide {
+          padding: 28px 22px 24px;
+          border-radius: 22px;
+        }
+
+        .hero,
+        .split,
+        .grid {
+          grid-template-columns: 1fr;
+        }
+
+        .visual {
+          min-height: 240px;
+        }
+
+        .footer {
+          flex-direction: column;
+          align-items: stretch;
+        }
+
+        .controls {
+          right: 22px;
+          bottom: 22px;
+        }
+
+        .topbar {
+          align-items: center;
+        }
+
+        h1 {
+          max-width: 100%;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="deck" id="deck">
+      <div class="slide-shell">
+        <section class="slide slide-enter" id="slide"></section>
+      </div>
+      <div class="nav-layer" aria-hidden="true">
+        <button class="nav-hit" id="prev-hit" title="上一页"></button>
+        <button class="nav-hit" id="next-hit" title="下一页"></button>
+      </div>
+      <div class="controls">
+        <button class="control-btn" id="prev-btn" aria-label="上一页">←</button>
+        <button class="control-btn" id="next-btn" aria-label="下一页">→</button>
+      </div>
+    </main>
+
+    <script>
+      const slides = [
+        {
+          type: "cover",
+          eyebrow: "AheadForm / Product Analysis",
+          title: "让机器人更像人的另一种可能",
+          subtitle:
+            "首形科技（AheadForm）产品分析与思考。一次围绕“情感化具身智能”的分享，从产品切口、技术路线到交互价值重新理解机器人。",
+          meta: [
+            ["分享人", "刘家昕"],
+            ["日期", "2026.04.23"],
+            ["形式", "交互式网页演示"],
+          ],
+        },
+        {
+          type: "hero-face",
+          eyebrow: "01 / Why It Feels Different",
+          title: "一个“看起来有情绪”的机器人",
+          subtitle:
+            "它的吸引力不只来自技术，而是来自第一眼就能感知到的生命感、情绪感与被注视感。",
+          pills: ["拟人表情", "眼神反馈", "人格特征", "情绪投射"],
+        },
+        {
+          type: "profile",
+          eyebrow: "02 / Company Snapshot",
+          title: "首形科技（AheadForm）",
+          subtitle:
+            "一家近期频繁出现在科技媒体和短视频平台的新兴机器人公司，专注于具身智能的情感化探索。",
+          stats: [
+            ["创始人", "胡宇航"],
+            ["背景", "95后连续创业者 / 哥大机器人博士"],
+            ["突破口", "以“人脸”而不是手脚作为起点"],
+          ],
+          quote:
+            "目标不是简单复制人的外形，而是让机器人拥有能被感受到的情绪表达与互动存在感。",
+        },
+        {
+          type: "split-list",
+          eyebrow: "03 / Why It Went Viral",
+          title: "一个“会有表情”的机器人为什么会突然火",
+          leftTitle: "产品特点",
+          leftList: ["拟人表情，如困惑、思考", "眼神追踪能力", "实时情绪反馈", "独特人格设计，如“泪痣”"],
+          rightTitle: "传播与原因",
+          rightList: ["全网视频累计播放量超过 1.5 亿", "处在“像人”与“不完全像人”的边界", "形成强烈心理张力", "激发持续关注与讨论"],
+        },
+        {
+          type: "industry",
+          eyebrow: "04 / Market Context",
+          title: "行业背景：人形机器人正在快速发展",
+          stats: [
+            ["推动因素", "大模型提升机器人认知能力"],
+            ["行业趋势", "从机械执行走向智能自主"],
+            ["主流目标", "强调“能干活”的工作能力"],
+          ],
+          companies: [
+            ["Tesla", "Optimus，强调规模化生产"],
+            ["UBTECH", "长期深耕运动控制"],
+            ["Fourier", "拓展工业与家庭场景"],
+          ],
+        },
+        {
+          type: "compare",
+          eyebrow: "05 / Two Paths",
+          title: "两种技术路线对比",
+          leftTitle: "主流机器人路径",
+          leftList: ["发展运动能力：走、跑", "发展物理交互能力：抓取、搬运", "应用于复杂现实环境"],
+          rightTitle: "首形科技路径",
+          rightList: ["优先发展“人脸”", "专注面部交互与情绪表达", "构建更具亲和力的人机关系"],
+          quote: "在强调能力的行业环境中，为什么有人先选择做“像人”的那一面？",
+        },
+        {
+          type: "framework",
+          eyebrow: "06 / Analysis Lens",
+          title: "分析框架",
+          steps: [
+            ["01", "为什么选择“人脸”作为切入点"],
+            ["02", "核心技术在做什么"],
+            ["03", "想解决的核心问题是什么"],
+          ],
+        },
+        {
+          type: "split-list",
+          eyebrow: "07 / Core One",
+          title: "核心一：为什么选择人脸",
+          leftTitle: "人脸作为交互入口",
+          leftList: ["集成视觉、语音与情绪信息", "信息密度高", "符合多模态模型发展方向"],
+          rightTitle: "学习路径优势",
+          rightList: ["相比全身机器人复杂度更低", "可作为 AI 学习与验证起点", "支持从简单到复杂的能力扩展"],
+          quote: "目标是从“外形像人”走向“具备人类情感理解与表达能力”。",
+        },
+        {
+          type: "timeline",
+          eyebrow: "08 / Core Two",
+          title: "核心二：技术实现（一）",
+          subtitle: "不是“像人”，而是“动起来像人”，重点在动态、连续性与真实感。",
+          timeline: [
+            ["第一层", "解决恐怖谷问题：表情不自然会让用户不适，因此必须实现平滑、真实的变化。"],
+            ["第二层", "双 AI 系统：一套理解自身面部运动机制，一套模仿真实人类表情。"],
+            ["结果", "实现从简单模仿到自主生成自然表情。"],
+          ],
+        },
+        {
+          type: "split-list",
+          eyebrow: "09 / Core Two",
+          title: "核心二：技术实现（二）",
+          leftTitle: "CharacterMind 系统",
+          leftList: ["创建机器人角色与人格", "识别用户情绪", "生成对应反馈策略"],
+          rightTitle: "系统能力",
+          rightList: ["情绪识别：视觉与语音", "情绪反馈：动态调整", "人格一致性表达"],
+          quote: "本质上，它让机器人具备持续、稳定且更有深度的交互能力。",
+        },
+        {
+          type: "compare",
+          eyebrow: "10 / Core Three",
+          title: "核心三：要解决的问题（一）",
+          leftTitle: "当前现状",
+          leftList: ["AI 很强：回答、生成、执行", "但用户关系感弱", "缺乏真实互动感与情感连接"],
+          rightTitle: "解决方式",
+          rightList: ["引入“情绪接口”", "用表情与情绪传递信息", "建立更真实的存在感"],
+          quote: "传统 AI 输出的是内容，人脸机器人传达的是“我在和你互动”。",
+        },
+        {
+          type: "applications",
+          eyebrow: "11 / Use Cases",
+          title: "核心三：要解决的问题（二）",
+          items: [
+            ["陪伴", "老人、儿童等需要长期情感回应的场景"],
+            ["教育", "增强沉浸感与注意力保持"],
+            ["心理疏导", "提供情绪支持与互动陪伴"],
+            ["高端服务", "打造更个性化的体验"],
+          ],
+          quote: "用户需要的往往不只是结果，还包括过程中的理解感与连接感。",
+        },
+        {
+          type: "value-shift",
+          eyebrow: "12 / Value Shift",
+          title: "核心三：要解决的问题（三）",
+          leftTitle: "传统价值",
+          leftList: ["工具属性", "提高效率", "降低成本"],
+          rightTitle: "新价值",
+          rightList: ["情绪载体", "人机交互媒介", "体验与关系构建"],
+          quote: "机器人价值正在从“功能导向”转向“情感与体验导向”。",
+        },
+        {
+          type: "thoughts",
+          eyebrow: "13 / Reflection",
+          title: "个人思考",
+          timeline: [
+            ["01", "技术竞争正在从能力转向体验。用户更倾向选择交互自然的产品，而不一定是功能最强的。"],
+            ["02", "当机器人具备情绪表达能力，人可能开始把它视为交互对象，而不是单纯工具。"],
+            ["03", "影响留存的关键因素，很多时候并不是功能本身，而是用户的主观感受。"],
+          ],
+        },
+        {
+          type: "closing",
+          eyebrow: "14 / Closing",
+          title: "THANKS FOR WATCHING",
+          subtitle: "让机器人更像人，也许不只是一条技术路线，而是一种全新的产品关系设计。",
+        },
+      ];
+
+      const slideEl = document.getElementById("slide");
+      const prevBtn = document.getElementById("prev-btn");
+      const nextBtn = document.getElementById("next-btn");
+      const prevHit = document.getElementById("prev-hit");
+      const nextHit = document.getElementById("next-hit");
+
+      let currentIndex = 0;
+
+      function indexFromHash() {
+        const raw = window.location.hash.replace("#slide-", "");
+        const parsed = Number.parseInt(raw, 10);
+        if (Number.isNaN(parsed) || parsed < 1 || parsed > slides.length) {
+          return 0;
+        }
+        return parsed - 1;
+      }
+
+      function footer(progress) {
+        return `
+          <div class="footer">
+            <div class="progress">
+              <div class="progress-bar" style="width:${progress}%"></div>
+            </div>
+            <div class="footer-hint">
+              <span>点击左右半屏翻页</span>
+              <span class="key">←</span>
+              <span class="key">→</span>
+            </div>
+          </div>
+        `;
+      }
+
+      function topbar(slide, index) {
+        return `
+          <div class="topbar">
+            <div class="eyebrow">${slide.eyebrow || ""}</div>
+            <div class="page-tag">${String(index + 1).padStart(2, "0")} / ${String(slides.length).padStart(2, "0")}</div>
+          </div>
+        `;
+      }
+
+      function renderCover(slide, progress, index) {
+        const meta = slide.meta
+          .map(
+            ([label, value]) => `
+              <div class="meta-card">
+                <div class="meta-label">${label}</div>
+                <div class="meta-value">${value}</div>
+              </div>
+            `
+          )
+          .join("");
+
+        return `
+          ${topbar(slide, index)}
+          <div class="content hero">
+            <div class="hero-text">
+              <div class="badge">主题分享 / Presentation</div>
+              <h1>${slide.title}</h1>
+              <div class="subtitle">${slide.subtitle}</div>
+              <div class="meta-row">${meta}</div>
+            </div>
+            <div class="visual" aria-hidden="true">
+              <div class="face">
+                <div class="eye left"></div>
+                <div class="eye right"></div>
+                <div class="mouth"></div>
+                <div class="tear"></div>
+              </div>
+            </div>
+          </div>
+          ${footer(progress)}
+        `;
+      }
+
+      function renderHeroFace(slide, progress, index) {
+        const pills = slide.pills.map((item) => `<div class="pill">${item}</div>`).join("");
+        return `
+          ${topbar(slide, index)}
+          <div class="content hero">
+            <div class="hero-text">
+              <h2>${slide.title}</h2>
+              <div class="subtitle">${slide.subtitle}</div>
+              <div class="pill-row">${pills}</div>
+            </div>
+            <div class="visual" aria-hidden="true">
+              <div class="face">
+                <div class="eye left"></div>
+                <div class="eye right"></div>
+                <div class="mouth"></div>
+                <div class="tear"></div>
+              </div>
+            </div>
+          </div>
+          ${footer(progress)}
+        `;
+      }
+
+      function renderProfile(slide, progress, index) {
+        const stats = slide.stats
+          .map(
+            ([label, value]) => `
+              <div class="stat">
+                <div class="stat-label">${label}</div>
+                <div class="stat-value">${value}</div>
+              </div>
+            `
+          )
+          .join("");
+
+        return `
+          ${topbar(slide, index)}
+          <div class="content">
+            <h2>${slide.title}</h2>
+            <div class="subtitle">${slide.subtitle}</div>
+            <div class="stat-row">${stats}</div>
+            <div class="quote"><span>${slide.quote}</span></div>
+          </div>
+          ${footer(progress)}
+        `;
+      }
+
+      function renderSplitList(slide, progress, index) {
+        return `
+          ${topbar(slide, index)}
+          <div class="content">
+            <h2>${slide.title}</h2>
+            <div class="split">
+              <div class="list-card">
+                <h3>${slide.leftTitle}</h3>
+                <ul>${slide.leftList.map((item) => `<li>${item}</li>`).join("")}</ul>
+              </div>
+              <div class="list-card">
+                <h3>${slide.rightTitle}</h3>
+                <ul>${slide.rightList.map((item) => `<li>${item}</li>`).join("")}</ul>
+              </div>
+            </div>
+            ${slide.quote ? `<div class="quote"><span>${slide.quote}</span></div>` : ""}
+          </div>
+          ${footer(progress)}
+        `;
+      }
+
+      function renderIndustry(slide, progress, index) {
+        const stats = slide.stats
+          .map(
+            ([label, value]) => `
+              <div class="stat">
+                <div class="stat-label">${label}</div>
+                <div class="stat-value">${value}</div>
+              </div>
+            `
+          )
+          .join("");
+
+        const companies = slide.companies
+          .map(
+            ([name, desc]) => `
+              <div class="timeline-item">
+                <div class="timeline-title">${name}</div>
+                <div class="timeline-body">${desc}</div>
+              </div>
+            `
+          )
+          .join("");
+
+        return `
+          ${topbar(slide, index)}
+          <div class="content">
+            <h2>${slide.title}</h2>
+            <div class="stat-row">${stats}</div>
+            <div class="split">
+              <div class="panel">
+                <h3>主流发展路径</h3>
+                <div class="subtitle">让机器人具备真实人类的工作能力，例如行走、抓取、搬运，重点强调“能干活”。</div>
+              </div>
+              <div class="panel">
+                <h3>代表公司</h3>
+                <div class="timeline">${companies}</div>
+              </div>
+            </div>
+          </div>
+          ${footer(progress)}
+        `;
+      }
+
+      function renderCompare(slide, progress, index) {
+        return `
+          ${topbar(slide, index)}
+          <div class="content">
+            <h2>${slide.title}</h2>
+            <div class="grid">
+              <div class="panel">
+                <h3>${slide.leftTitle}</h3>
+                <ul>${slide.leftList.map((item) => `<li>${item}</li>`).join("")}</ul>
+              </div>
+              <div class="panel">
+                <h3>${slide.rightTitle}</h3>
+                <ul>${slide.rightList.map((item) => `<li>${item}</li>`).join("")}</ul>
+              </div>
+            </div>
+            <div class="quote"><span>${slide.quote}</span></div>
+          </div>
+          ${footer(progress)}
+        `;
+      }
+
+      function renderFramework(slide, progress, index) {
+        const items = slide.steps
+          .map(
+            ([num, text]) => `
+              <div class="timeline-item">
+                <div class="timeline-title">${num}</div>
+                <div class="timeline-body">${text}</div>
+              </div>
+            `
+          )
+          .join("");
+
+        return `
+          ${topbar(slide, index)}
+          <div class="content">
+            <div class="badge">本次分享的分析路径</div>
+            <h2>${slide.title}</h2>
+            <div class="timeline">${items}</div>
+          </div>
+          ${footer(progress)}
+        `;
+      }
+
+      function renderTimeline(slide, progress, index) {
+        const items = slide.timeline
+          .map(
+            ([label, text]) => `
+              <div class="timeline-item">
+                <div class="timeline-title">${label}</div>
+                <div class="timeline-body">${text}</div>
+              </div>
+            `
+          )
+          .join("");
+
+        return `
+          ${topbar(slide, index)}
+          <div class="content">
+            <h2>${slide.title}</h2>
+            ${slide.subtitle ? `<div class="subtitle">${slide.subtitle}</div>` : ""}
+            <div class="timeline">${items}</div>
+          </div>
+          ${footer(progress)}
+        `;
+      }
+
+      function renderApplications(slide, progress, index) {
+        const cards = slide.items
+          .map(
+            ([title, desc]) => `
+              <div class="list-card">
+                <h3>${title}</h3>
+                <div class="subtitle">${desc}</div>
+              </div>
+            `
+          )
+          .join("");
+
+        return `
+          ${topbar(slide, index)}
+          <div class="content">
+            <h2>${slide.title}</h2>
+            <div class="grid">${cards}</div>
+            <div class="quote"><span>${slide.quote}</span></div>
+          </div>
+          ${footer(progress)}
+        `;
+      }
+
+      function renderValueShift(slide, progress, index) {
+        return `
+          ${topbar(slide, index)}
+          <div class="content">
+            <h2>${slide.title}</h2>
+            <div class="split">
+              <div class="panel">
+                <h3>${slide.leftTitle}</h3>
+                <ul>${slide.leftList.map((item) => `<li>${item}</li>`).join("")}</ul>
+              </div>
+              <div class="panel">
+                <h3>${slide.rightTitle}</h3>
+                <ul>${slide.rightList.map((item) => `<li>${item}</li>`).join("")}</ul>
+              </div>
+            </div>
+            <div class="quote"><span>${slide.quote}</span></div>
+          </div>
+          ${footer(progress)}
+        `;
+      }
+
+      function renderThoughts(slide, progress, index) {
+        const items = slide.timeline
+          .map(
+            ([label, text]) => `
+              <div class="timeline-item">
+                <div class="timeline-title">${label}</div>
+                <div class="timeline-body">${text}</div>
+              </div>
+            `
+          )
+          .join("");
+
+        return `
+          ${topbar(slide, index)}
+          <div class="content">
+            <div class="badge">从产品体验出发的判断</div>
+            <h2>${slide.title}</h2>
+            <div class="timeline">${items}</div>
+          </div>
+          ${footer(progress)}
+        `;
+      }
+
+      function renderClosing(slide, progress, index) {
+        return `
+          ${topbar(slide, index)}
+          <div class="content closing">
+            <div>
+              <div class="eyebrow">AheadForm / Emotion-Centered Robotics</div>
+              <h1>${slide.title}</h1>
+              <div class="subtitle">${slide.subtitle}</div>
+            </div>
+          </div>
+          ${footer(progress)}
+        `;
+      }
+
+      function renderSlide(index) {
+        const slide = slides[index];
+        const progress = ((index + 1) / slides.length) * 100;
+        const renderers = {
+          cover: renderCover,
+          "hero-face": renderHeroFace,
+          profile: renderProfile,
+          "split-list": renderSplitList,
+          industry: renderIndustry,
+          compare: renderCompare,
+          framework: renderFramework,
+          timeline: renderTimeline,
+          applications: renderApplications,
+          "value-shift": renderValueShift,
+          thoughts: renderThoughts,
+          closing: renderClosing,
+        };
+
+        slideEl.classList.remove("slide-enter");
+        void slideEl.offsetWidth;
+        slideEl.innerHTML = renderers[slide.type](slide, progress, index);
+        slideEl.classList.add("slide-enter");
+      }
+
+      function syncHash(index) {
+        const nextHash = `#slide-${index + 1}`;
+        if (window.location.hash !== nextHash) {
+          history.replaceState(null, "", nextHash);
+        }
+      }
+
+      function goTo(index, options = {}) {
+        currentIndex = (index + slides.length) % slides.length;
+        renderSlide(currentIndex);
+        if (!options.skipHash) {
+          syncHash(currentIndex);
+        }
+      }
+
+      function next() {
+        goTo(currentIndex + 1);
+      }
+
+      function prev() {
+        goTo(currentIndex - 1);
+      }
+
+      nextBtn.addEventListener("click", next);
+      prevBtn.addEventListener("click", prev);
+      nextHit.addEventListener("click", next);
+      prevHit.addEventListener("click", prev);
+
+      window.addEventListener("keydown", (event) => {
+        if (event.key === "ArrowRight" || event.key === "PageDown" || event.key === " ") {
+          event.preventDefault();
+          next();
+        }
+
+        if (event.key === "ArrowLeft" || event.key === "PageUp") {
+          event.preventDefault();
+          prev();
+        }
+
+        if (event.key === "Home") {
+          goTo(0);
+        }
+
+        if (event.key === "End") {
+          goTo(slides.length - 1);
+        }
+      });
+
+      window.addEventListener("hashchange", () => {
+        goTo(indexFromHash(), { skipHash: true });
+      });
+
+      currentIndex = indexFromHash();
+      renderSlide(currentIndex);
+      syncHash(currentIndex);
+    </script>
+  </body>
+</html>
