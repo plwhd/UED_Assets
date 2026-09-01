@@ -152,7 +152,7 @@ design-sharing/
 
 ### 分支职责与保护规则
 
-- `ui`：团队日常集成分支。所有拥有 Write 或更高权限的成员都可以直接提交普通 commit。
+- `ui`：团队日常集成分支。禁止直接提交，所有改动必须通过 Pull Request 合入。
 - `main`：团队稳定分支。禁止直接提交，只能由管理员通过 `ui` → `main` Pull Request 统一合入。
 - `ui` 和 `main` 均禁止删除和强制推送。
 - 团队主仓库长期只保留 `main`、`ui`；临时开发分支在合并后及时删除。
@@ -162,46 +162,16 @@ design-sharing/
 - `origin`：自己的 GitHub Fork 仓库。
 - `upstream`：团队主仓库 `qiniu-ued/UED_Assets`。
 
-拥有 Write 权限的成员不依赖 Fork 即可直接提交 `ui`；无 Write 权限的贡献者，以及希望先进行代码审查的复杂修改，仍使用 Fork 或独立开发分支提交 PR。
-
-### Write 成员：直接提交到 `ui`
-
-开工前先同步团队最新 `ui`：
-
-```bash
-git fetch upstream
-git switch ui
-git merge --ff-only upstream/ui
-```
-
-完成修改后，只暂存本次涉及的文件：
-
-```bash
-git add <本次修改的文件路径>
-git commit -m "本次提交说明"
-```
-
-推送前再次吸收其他成员可能已经提交的新内容，然后直接推送到团队 `ui`：
-
-```bash
-git pull --rebase upstream ui
-git push upstream ui
-```
-
-只允许普通快进更新。不要对 `ui` 使用 `git push --force`，也不要删除 `ui`。
-
-如果通过 GitHub 网页上传或编辑文件，请先确认当前分支是 `ui`，然后直接提交到 `ui`。
-
-### 无 Write 权限或需要审查：通过 PR 提交到 `ui`
-
-从团队最新 `ui` 创建独立开发分支：
+### 成员：从最新 `ui` 创建开发分支
 
 ```bash
 git fetch upstream
 git switch -c feature/修改说明 upstream/ui
 ```
 
-提交修改并推送到个人 Fork：
+开发分支必须基于团队远端最新的 `upstream/ui` 创建，不要基于 `main` 或过期的本地分支创建。
+
+完成修改后，只暂存本次涉及的文件，提交并推送到个人 Fork：
 
 ```bash
 git add <本次修改的文件路径>
@@ -209,11 +179,23 @@ git commit -m "本次提交说明"
 git push -u origin feature/修改说明
 ```
 
-然后在 GitHub 创建 Pull Request：
+然后在 GitHub 创建 Pull Request，并确认比较方向：
 
-- 源分支：个人 Fork 或团队仓库中的独立开发分支。
+- 源分支：个人 Fork 中的开发分支；拥有 Write 权限的成员也可以使用团队仓库中的独立开发分支。
 - 目标分支：团队仓库的 `ui`。
+- 至少需要 1 个 Approve，通过审核后才能合并。
+- `Files changed` 应只包含本次修改；如果出现无关文件，先检查开发分支是否确实基于最新 `upstream/ui` 创建。
 - 临时开发分支在 PR 合并后及时删除。
+
+开发分支的历史中包含其他成员已经进入 `ui` 的 commit 是正常的；PR 只比较开发分支相对于 `ui` 新增的改动。
+
+### 通过 GitHub 网页编辑或上传
+
+`ui` 是受保护分支。在 GitHub 网页中编辑或上传文件后，提交窗口会提示无法直接提交到 `ui`。这不是权限故障，请选择：
+
+**Create a new branch for this commit and start a pull request**
+
+填写临时开发分支名并点击 **Propose changes**，然后确认 PR 的目标分支是团队仓库的 `ui`。不要选择 `main`，也不要尝试绕过规则直接提交 `ui`。
 
 ### 管理员：统一将 `ui` 合入 `main`
 
