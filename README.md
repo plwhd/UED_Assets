@@ -1,4 +1,4 @@
-# 设计团队分享资产管理规范（试行）\_2026.06.08
+# 设计团队分享资产管理规范（试行）\_2026.09.01
 
 ## 一、目标与原则
 
@@ -60,7 +60,7 @@ design-sharing/
 
 ### 操作步骤
 
-1. HTML文件产出：
+1. HTML 文件产出：
 
 - 先整理分享内容的文字框架或大纲，至少包括背景、核心观点、方法模型、结论和行动建议。
 - 将这份文字框架喂给 Codex 或其他 AI，生成一个可阅读、可维护的 HTML 初版。
@@ -69,7 +69,7 @@ design-sharing/
 2. 放置文件：
 
 - 在 `design-sharing/` 下创建独立文件夹，默认命名为 `分享主题`。
-- 将HTML文件命名为 `index.html` 放入该文件夹。
+- 将 HTML 文件命名为 `index.html` 放入该文件夹。
 - 在同级目录下创建 `README.md`，简要记录分享摘要、作者、日期和拼接的预览地址。
 - 如有设计源文件或补充资源，上传至内部 Kodo，并将链接记录在 `README.md` 末尾。
 
@@ -150,66 +150,86 @@ design-sharing/
 
 ## 七、Git 协作流程
 
-仓库协作默认采用 fork 工作流：
+### 分支职责与保护规则
 
-- `origin`：自己的 GitHub 仓库
-- `upstream`：团队主仓库
+- `ui`：团队日常集成分支。所有拥有 Write 或更高权限的成员都可以直接提交普通 commit。
+- `main`：团队稳定分支。禁止直接提交，只能由管理员通过 `ui` → `main` Pull Request 统一合入。
+- `ui` 和 `main` 均禁止删除和强制推送。
+- 团队主仓库长期只保留 `main`、`ui`；临时开发分支在合并后及时删除。
 
-### 开工前：先同步主分支
+### 远端命名
+
+- `origin`：自己的 GitHub Fork 仓库。
+- `upstream`：团队主仓库 `qiniu-ued/UED_Assets`。
+
+拥有 Write 权限的成员不依赖 Fork 即可直接提交 `ui`；无 Write 权限的贡献者，以及希望先进行代码审查的复杂修改，仍使用 Fork 或独立开发分支提交 PR。
+
+### Write 成员：直接提交到 `ui`
+
+开工前先同步团队最新 `ui`：
 
 ```bash
+git fetch upstream
 git switch ui
+git merge --ff-only upstream/ui
 ```
 
-切换到本地 `ui` 分支。
+完成修改后，只暂存本次涉及的文件：
 
 ```bash
-git pull upstream ui
+git add <本次修改的文件路径>
+git commit -m "本次提交说明"
 ```
 
-把团队主仓库 `upstream` 的 `ui` 最新内容更新到本地 `ui`。
+推送前再次吸收其他成员可能已经提交的新内容，然后直接推送到团队 `ui`：
 
 ```bash
-git push origin ui
+git pull --rebase upstream ui
+git push upstream ui
 ```
 
-把刚更新好的本地 `ui`，同步到自己仓库 `origin` 的 `ui`。
+只允许普通快进更新。不要对 `ui` 使用 `git push --force`，也不要删除 `ui`。
 
-### 版本检查：对应哈希
+如果通过 GitHub 网页上传或编辑文件，请先确认当前分支是 `ui`，然后直接提交到 `ui`。
+
+### 无 Write 权限或需要审查：通过 PR 提交到 `ui`
+
+从团队最新 `ui` 创建独立开发分支：
 
 ```bash
-git log -1 --oneline
+git fetch upstream
+git switch -c feature/修改说明 upstream/ui
 ```
 
-查看自己 `origin`仓库 `ui`分支的哈希，与GitHub的commit哈希对应，确认是否是最新版本
-
-### 开始开发：从最新 ui 切新分支
+提交修改并推送到个人 Fork：
 
 ```bash
-git checkout -b 新分支名
+git add <本次修改的文件路径>
+git commit -m "本次提交说明"
+git push -u origin feature/修改说明
 ```
 
-从当前最新的 `ui` 新建开发分支，并立即切换过去。
+然后在 GitHub 创建 Pull Request：
+
+- 源分支：个人 Fork 或团队仓库中的独立开发分支。
+- 目标分支：团队仓库的 `ui`。
+- 临时开发分支在 PR 合并后及时删除。
+
+### 管理员：统一将 `ui` 合入 `main`
+
+管理员在一个阶段的分享资料完成后，创建 `ui` → `main` Pull Request，将 `ui` 中累计的多个 commit 统一合入 `main`。
+
+- PR 源分支必须是团队仓库的 `ui`。
+- PR 目标分支必须是团队仓库的 `main`。
+- `main-pr-source-policy` 必须通过。
+- 合并方式使用 **Create a merge commit**，不要使用 Squash 或 Rebase。
+- 不要直接向 `main` 提交或推送。
+
+合并完成后，验证 `main` 与 `ui` 的文件树是否一致：
 
 ```bash
-git push -u origin 新分支名
+git fetch upstream
+git diff --stat upstream/main upstream/ui
 ```
 
-把新分支推到自己的 GitHub 仓库，并建立分支关联。后续再执行 `git push` 时，会默认推送到这个远端分支。
-
-### 开发完成后：提交并推送
-
-```bash
-git add .
-git commit -m "你的提交说明"
-git push -u origin 新分支名
-```
-
-把本地修改提交到当前开发分支，并推送到自己的 `origin` 仓库。
-
-### 提交合并
-
-开发分支推送完成后，在 GitHub 上发起 Pull Request：
-
-- 源分支：自己仓库里的开发分支
-- 目标分支：团队仓库的 `ui`
+命令没有输出，表示两个分支的文件内容一致。由于 `main` 上会产生合并提交，两个分支的 commit 哈希可以不同。
